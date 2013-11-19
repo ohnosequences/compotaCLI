@@ -1,0 +1,4 @@
+name := "nisperoCLI"
+
+organization := "ohnosequences"
+

@@ -72,7 +72,7 @@ object NisperoCLI {
       .withGroupNames(securityGroup)
     ).getSecurityGroups.head.getTags.find(_.getKey.equals(bucketsSuffixTag)).flatMap { tag =>
       val value = tag.getValue
-      println("value: " + value)
+     // println("value: " + value)
       if(value.matches(s3pattern)) {
         Some(value)
       } else {
@@ -145,7 +145,7 @@ object NisperoCLI {
     val ec2 = EC2.create(credentialsProvider)
 
     val resolverKeys = Map(
-      "resolver-credentials-provider" -> CredentialsUtils.generateCall(credentialsProvider)
+      "credentialsProvider" -> CredentialsUtils.generateCall(credentialsProvider)
     )
 
    // val iam = new AmazonIdentityManagementClient(credentialsProvider)
@@ -155,7 +155,7 @@ object NisperoCLI {
       case Some(bb) => Map(bucketsSuffixTag -> bb)
     }
 
-    println(bucketSuffixMapping)
+    //println(bucketSuffixMapping)
 
     val predef = bucketSuffixMapping ++ resolverKeys ++ Map(
       "password" -> java.lang.Long.toHexString((Math.random() * 100000000000L).toLong)

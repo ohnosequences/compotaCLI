@@ -4,7 +4,7 @@
   name: nisperocli
   class: ohnosequences.nispero.cli.NisperoCLI
 [scala]
-  version: 2.10.3
+  version: 2.10
 [repositories]
   local
   sonatype-oss-releases: https://oss.sonatype.org/content/repositories/releases/

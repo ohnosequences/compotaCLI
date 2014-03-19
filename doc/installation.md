@@ -1,6 +1,6 @@
 ## Installation
 
-### Preliminares
+### Preliminaries
 
 #### Java
 
@@ -64,7 +64,7 @@ Create `%USERPROFILE%\bin` directory and put it into your `%PATH%`:
 setx PATH "%PATH%;%USERPROFILE%\bin"
 ```
 
-##### `~/SBT
+##### SBT
 
 > you can skip this stem if SBT already installed in your system, but then you will have to provide correct path to sbt-launch.jar in all nispero.bat script
 
@@ -77,7 +77,7 @@ SET SBT_OPTS "-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPer
 java %SBT_OPTS% -jar %USERPROFILE%\bin\sbt-launch.jar %*
 ```
 
-##### `~/nispero cli
+##### nispero cli
 
 Create script `%USERPROFILE%\bin\nispero.bat` with following content:
 

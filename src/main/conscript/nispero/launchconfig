@@ -3,7 +3,6 @@
   org: ohnosequences
   name: nisperocli
   class: ohnosequences.nispero.cli.NisperoCLI
-  cross-versioned: false
 [scala]
   version: 2.10.3
 [repositories]

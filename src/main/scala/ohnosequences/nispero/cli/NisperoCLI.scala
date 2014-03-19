@@ -26,7 +26,8 @@ class NisperoCLI extends xsbti.AppMain {
 }
 
 object NisperoCLI {
-  val s3pattern = """[a-zA-Z0-9][a-zA-Z0-9-]*"""
+  val s3pattern = """[a-zA-Z0-9][a-zA-Z0-9-\.]*"""
+  val keyNamePattern = """[a-zA-Z0-9][a-zA-Z0-9-]*"""
 
   val logger = Logger(this.getClass)
 
@@ -62,7 +63,7 @@ object NisperoCLI {
   }
 
 
-  val bucketsSuffixTag = "bucketsSuffix"
+  val bucketsSuffixTag = "bucketSuffix"
   val securityGroup = "nispero"
 
   def getConfiguredBucketSuffix(ec2: EC2, securityGroup: String): Option[String] = {
@@ -71,6 +72,7 @@ object NisperoCLI {
       .withGroupNames(securityGroup)
     ).getSecurityGroups.head.getTags.find(_.getKey.equals(bucketsSuffixTag)).flatMap { tag =>
       val value = tag.getValue
+      println("value: " + value)
       if(value.matches(s3pattern)) {
         Some(value)
       } else {
@@ -113,19 +115,19 @@ object NisperoCLI {
     ec2.createTags(id.get, List(Tag(bucketsSuffixTag, takenBucketSuffix)))
 
 
-    println("type key pair name (type ENTER if it is not needed):" )
+    println("type key pair name (type ENTER if it is not needed):")
 
-    var keyPairName = ""
+    var keyPairName = readLine()
 
-    while(keyPairName.isEmpty) {
-      keyPairName = readLine()
-      if (!keyPairName.matches(s3pattern)) {
-        logger.warn("key pair name should have format: " + s3pattern)
-        keyPairName = ""
+    if (!keyPairName.isEmpty) {
+      while(!keyPairName.matches(keyNamePattern)) {
+        logger.warn("key pair name should have format: " + keyNamePattern)
+        keyPairName = readLine()
       }
+
+      logger.info("creating key pair: " + keyPairName)
+      ec2.createKeyPair(keyPairName, Some(new File(keyPairName + ".pem")))
     }
-    logger.info("creating key pair: " + keyName)
-    ec2.createKeyPair(keyName, Some(new File(keyName + ".pem")))
 
     logger.info("creating IAM role: " + iamRole)
     if(!RoleCreator.roleExists(iamRole, iam)){
@@ -153,10 +155,13 @@ object NisperoCLI {
       case Some(bb) => Map(bucketsSuffixTag -> bb)
     }
 
+    println(bucketSuffixMapping)
+
     val predef = bucketSuffixMapping ++ resolverKeys ++ Map(
       "password" -> java.lang.Long.toHexString((Math.random() * 100000000000L).toLong)
     )
     fetch(tag, url, predef, defaultPrinter)
+
   }
 
   def retrieveCredentialsProvider(file: Option[String]): AWSCredentialsProvider = {
@@ -171,17 +176,28 @@ object NisperoCLI {
 
   def createUrl(repo: String) = "https://github.com/" +  repo + ".git"
 
+  def parseRepo(repoTag: String): (String, Option[String]) = {
+    repoTag.split("/").toList match {
+      case org :: repo :: tag :: Nil => (org + "/" + repo, Some(tag))
+      case org :: repo :: Nil => (org + "/" + repo, None)
+      case _ => throw new Error("wrong repository")
+    }
+  }
+
+
   def main(args: Array[String]) {
     val argsList = args.toList
     argsList match {
-      case "create" :: repo :: tag :: Nil =>  {
+      case "create" :: repo :: Nil =>  {
         val provider = retrieveCredentialsProvider(None)
-        createNispero(provider, Some(tag), createUrl(repo))
+        val repoTag = parseRepo(repo)
+        createNispero(provider, repoTag._2, createUrl(repoTag._1))
       }
 
-      case "create" :: repo :: tag :: file :: Nil =>  {
-        val provider = retrieveCredentialsProvider(None)
-        createNispero(provider, Some(tag), createUrl(repo))
+      case "create" :: repo :: file :: Nil =>  {
+        val provider = retrieveCredentialsProvider(Some(file))
+        val repoTag = parseRepo(repo)
+        createNispero(provider, repoTag._2, createUrl(repoTag._1))
       }
 
       case "configure" :: Nil =>  {
@@ -287,11 +303,14 @@ object NisperoCLI {
 
     Utils.copyAndReplace(files, dst2, mapping, t.getPath, mapIgnore)
 
+
     try {
       FileUtils.deleteDirectory(dst)
     } catch {
       case e: IOException => logger.warn("unable to delete: " + dst.getPath)
     }
+
+    logger.info("template applied to " + dst2.getAbsolutePath)
 
   }
 

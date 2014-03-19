@@ -70,7 +70,7 @@ setx PATH "%PATH%;%USERPROFILE%\bin"
 
 Put [sbt-launch.jar](http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.1/sbt-launch.jar) into your `%USERPROFILE%\bin` directory.
 
-Create script `~/bin/sbt.bat` with following content:
+Create script `%USERPROFILE%\bin\sbt.bat` with following content:
 
 ```
 SET SBT_OPTS "-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPermSize=256M"
@@ -78,6 +78,9 @@ java %SBT_OPTS% -jar %USERPROFILE%\bin\sbt-launch.jar %*
 ```
 
 ##### nispero cli
+
+Put [launchconfig](https://github.com/ohnosequences/nisperoCLI/blob/super-cli/src/main/conscript/nispero/launchconfig) into 
+your `%USERPROFILE%\bin` directory.
 
 Create script `%USERPROFILE%\bin\nispero.bat` with following content:
 

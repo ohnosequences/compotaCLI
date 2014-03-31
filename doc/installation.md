@@ -34,7 +34,7 @@ chmod +x ~/bin/sbt
 
 ##### `~/nispero cli
 
-Put [launchconfig](https://github.com/ohnosequences/nisperoCLI/blob/super-cli/src/main/conscript/nispero/launchconfig) into 
+Put [launchconfig](https://raw.githubusercontent.com/ohnosequences/nisperoCLI/super-cli/src/main/conscript/nispero/launchconfig) into 
 your `~/bin` directory.
 
 Create script `~/bin/nispero` with following content:
@@ -79,7 +79,7 @@ java %SBT_OPTS% -jar %USERPROFILE%\bin\sbt-launch.jar %*
 
 ##### nispero cli
 
-Put [launchconfig](https://github.com/ohnosequences/nisperoCLI/blob/super-cli/src/main/conscript/nispero/launchconfig) into 
+Put [launchconfig](https://raw.githubusercontent.com/ohnosequences/nisperoCLI/super-cli/src/main/conscript/nispero/launchconfig) into 
 your `%USERPROFILE%\bin` directory.
 
 Create script `%USERPROFILE%\bin\nispero.bat` with following content:

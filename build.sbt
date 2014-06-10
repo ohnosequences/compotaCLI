@@ -1,6 +1,8 @@
 Nice.scalaProject
 
-name := "nisperoCLI"
+//Nice.fatArtifactSettings
+
+name := "nispero-cli"
 
 organization := "ohnosequences"
 

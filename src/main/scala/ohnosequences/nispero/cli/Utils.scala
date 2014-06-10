@@ -85,10 +85,10 @@ object Utils {
           if(content.contains("$")) {
             println("warning: " + newFile.getPath + " contains $")
           }
-          findPattern(content) match {
-            case None => ()
-            case Some((name, context)) => throw new Error("warning: " + name + " placeholder is free")
-          }
+          // findPattern(content) match {
+          //   case None => ()
+          //   case Some((name, context)) => throw new Error("warning: " + name + " placeholder is free")
+          // }
           writeStringToFile(content, newFile)
         }
 

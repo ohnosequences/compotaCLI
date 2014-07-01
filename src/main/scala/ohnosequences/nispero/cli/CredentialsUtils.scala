@@ -50,11 +50,11 @@ object CredentialsUtils {
   def check(provider: AWSCredentialsProvider): Boolean = {
     try {
       val ec2 = EC2.create(provider)
-      val size = ec2.ec2.describeTags().getTags.size()
+      val size = ec2.ec2.describeSpotPriceHistory().getSpotPriceHistory.size()
       true
     } catch {      
       case t: AmazonClientException => {
-        logger.warn("couldn't receive credentials from " + print(provider))
+        logger.warn("couldn't receive credentials from (or describeSpotPriceHistory() not allowed)" + print(provider))
         false
       }
     }

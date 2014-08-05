@@ -17,7 +17,7 @@ Create `~/bin` directory and put it into your `$PATH`
 
 > you can skip this stem if SBT already installed in your system, but then you will have to provide correct path to sbt-launch.jar in nispero script
 
-Put [sbt-launch.jar](http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.1/sbt-launch.jar) into you `~/bin` directory.
+Put [sbt-launch.jar](http://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/0.13.5/sbt-launch.jar) into you `~/bin` directory.
 
 Create script `~/bin/sbt` with following content:
 
@@ -34,7 +34,7 @@ chmod +x ~/bin/sbt
 
 ##### `~/nispero cli
 
-Put [launchconfig](https://raw.githubusercontent.com/ohnosequences/nisperoCLI/super-cli/src/main/conscript/nispero/launchconfig) into 
+Put [launchconfig](https://raw.githubusercontent.com/ohnosequences/nisperoCLI/master/src/main/conscript/nispero/launchconfig) into 
 your `~/bin` directory.
 
 Create script `~/bin/nispero` with following content:
@@ -79,7 +79,7 @@ java %SBT_OPTS% -jar %USERPROFILE%\bin\sbt-launch.jar %*
 
 ##### nispero cli
 
-Put [launchconfig](https://raw.githubusercontent.com/ohnosequences/nisperoCLI/super-cli/src/main/conscript/nispero/launchconfig) into 
+Put [launchconfig](https://raw.githubusercontent.com/ohnosequences/nisperoCLI/master/src/main/conscript/nispero/launchconfig) into 
 your `%USERPROFILE%\bin` directory.
 
 Create script `%USERPROFILE%\bin\nispero.bat` with following content:

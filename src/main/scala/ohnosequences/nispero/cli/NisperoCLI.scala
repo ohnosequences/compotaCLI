@@ -83,7 +83,7 @@ object NisperoCLI {
 
   def accountSetup(ec2: EC2, iam: AmazonIdentityManagementClient) = {
 
-    val iamRole = "nispero"
+    val iamRole = "compota"
     val keyName = "nispero"
 
     val port = 443 //https

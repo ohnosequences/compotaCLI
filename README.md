@@ -75,7 +75,7 @@ cs ohnosequences/nisperoCLI
 
 ### Usage
 
-* `nispero create <organization>/<repository>` create a new project from template located in github repository
-* `nispero create <organization>/<repository>/<tag>` create a new project from the specific release of template located in github repository
-* `nispero configure` -- configure AWS account for using nispero-based applications
-* `nispero configure bucket` -- setup default location for artifacts
+* `nispero create <organization>/<repository>` – create a new project from template located in github repository
+* `nispero create <organization>/<repository>/<tag>` – create a new project from the specific release of template located in github repository
+* `nispero configure` – configure AWS account for using nispero-based applications
+* `nispero configure bucket` – setup default location for artifacts

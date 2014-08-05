@@ -61,3 +61,10 @@ SET SBT_OPTS  "-Xms512M -Xmx536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPer
 java %SBT_OPTS% -jar %USERPROFILE%\bin\sbt-launch.jar "@launchconfig" %*
 ```
 
+
+### Usage
+
+* `nispero create <organization>/<repository>` create a new project from template located in github repository
+* `nispero create <organization>/<repository>/<tag>` create a new project from the specific release of template located in github repository
+* `nispero configure` -- configure AWS account for using nispero-based applications
+* `nispero configure bucket` -- setup default location for artifacts

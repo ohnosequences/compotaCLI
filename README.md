@@ -32,11 +32,13 @@ Installation in Windows depends on command interpretator
 
 ##### Bash: Git for Windows, MinGW
 
+Download and install [Git for Windows](http://msysgit.github.io/)
+
 Create %USERPROFILE%\bin directory and put it into your %PATH%:
 
 setx PATH "%PATH%;%USERPROFILE%\bin"
 
-##### SBT
+###### SBT
 
 > you can skip this stem if SBT already installed in your system, but then you will have to provide correct path to sbt-launch.jar in all nispero.bat script
 
@@ -49,7 +51,7 @@ SET SBT_OPTS "-Xms512M -Xmx1536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPer
 java %SBT_OPTS% -jar %USERPROFILE%\bin\sbt-launch.jar %*
 ```
 
-##### nispero cli
+###### nispero cli
 
 Put [launchconfig](https://raw.githubusercontent.com/ohnosequences/nisperoCLI/master/src/main/conscript/nispero/launchconfig) into 
 your `%USERPROFILE%\bin` directory.
@@ -61,6 +63,15 @@ SET SBT_OPTS  "-Xms512M -Xmx536M -Xss1M -XX:+CMSClassUnloadingEnabled -XX:MaxPer
 java %SBT_OPTS% -jar %USERPROFILE%\bin\sbt-launch.jar "@launchconfig" %*
 ```
 
+##### Power shell, command line
+
+> **warning:** because in a lot of cases conscript doesn't work manual installation with Git for Windows recommended
+
+Lauch [conscript jar](https://github.com/n8han/conscript/releases/download/0.4.4-1/conscript-0.4.4-1.jar) and then in command line type:
+
+```
+cs ohnosequences/nisperoCLI
+```
 
 ### Usage
 

@@ -81,18 +81,11 @@ object NisperoCLI {
     }
   }
 
-  def accountSetup(ec2: EC2, iam: AmazonIdentityManagementClient) = {
-
-    val iamRole = "compota"
-    val keyName = "nispero"
-
-    val port = 443 //https
-
-
-    val id = createSecurityGroup(ec2, securityGroup, port)
+  def bucketSetup(ec2: EC2) = {
+    val port = 443 //https  
+    val id = createSecurityGroup(ec2, securityGroup, port)  
 
     val bucketsSuffixValue = getConfiguredBucketSuffix(ec2, securityGroup)
-
     print("type suffix for artifacts buckets")
     bucketsSuffixValue match {
       case Some(name) => println(" [" + name + "]:")
@@ -113,7 +106,16 @@ object NisperoCLI {
     }
 
     ec2.createTags(id.get, List(Tag(bucketsSuffixTag, takenBucketSuffix)))
+  }
 
+  def accountSetup(ec2: EC2, iam: AmazonIdentityManagementClient) = {
+
+    val iamRole = "compota"
+    val keyName = "nispero"
+
+  
+
+    bucketSetup(ec2)
 
     println("type key pair name (type ENTER if it is not needed):")
 
@@ -188,6 +190,12 @@ object NisperoCLI {
   def main(args: Array[String]) {
     val argsList = args.toList
     argsList match {
+
+      case "configure" :: "bucket" :: Nil => {
+        val provider = retrieveCredentialsProvider(None)
+        bucketSetup(EC2.create(provider))
+      }
+
       case "create" :: repo :: Nil =>  {
         val provider = retrieveCredentialsProvider(None)
         val repoTag = parseRepo(repo)

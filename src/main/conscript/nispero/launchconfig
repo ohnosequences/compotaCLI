@@ -1,7 +1,7 @@
 [app]
-  version: 1.0.0
+  version: 2.0.2
   org: ohnosequences
-  name: nispero-abstract_2.10
+  name: nispero-cli_2.10
   class: ohnosequences.nispero.cli.NisperoCLI
   cross-versioned: false
 [scala]

@@ -5,8 +5,6 @@ nisperoCLI is a command-line application for working with nispero-based projects
 
 ### Installation
 
-#### Preliminaries
-
 ##### Java
 
 jdk7 should be installed, and `java` command should be in the path

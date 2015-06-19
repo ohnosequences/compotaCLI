@@ -1,7 +1,7 @@
-package ohnosequences.nispero.cli
+package ohnosequences.compota.cli
 
 import java.io.{PrintWriter, File}
-import org.apache.commons.io.FileUtils
+import java.nio.file.Files
 
 object Utils {
   def waitForResource[A](resource: => Option[A]) : Option[A] = {
@@ -19,7 +19,7 @@ object Utils {
   }
 
   def createTempDir(attempt: Int = 0): File = {
-    val baseDir = FileUtils.getTempDirectory()
+    val baseDir = Files.createTempDirectory("compota_cli").toFile
     val tmp: File = new File(baseDir, System.nanoTime() + "-" + attempt)
 
     if(tmp.mkdir()) {
@@ -77,7 +77,7 @@ object Utils {
 
         if(mapIgnore(file)) {
           // println("ignoring: " + file.getPath)
-          FileUtils.copyFile(file, newFile)
+          Files.copy(file.toPath, newFile.toPath)
         } else {
           val content = replace(scala.io.Source.fromFile(file).mkString, mapping)
 

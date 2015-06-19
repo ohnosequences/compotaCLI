@@ -1,35 +1,27 @@
-package ohnosequences.nispero.cli
+package ohnosequences.compota.cli
 
+import java.nio.file.Files
+
+import ohnosequences.logging.ConsoleLogger
 import org.eclipse.jgit.api.Git
 import java.io.{IOException, FileInputStream, File}
 
 import ohnosequences.awstools.ec2.{Tag, EC2}
 import com.amazonaws.auth.{AWSCredentialsProvider, InstanceProfileCredentialsProvider, PropertiesCredentials}
-import org.clapper.avsl.Logger
 import com.amazonaws.services.ec2.model.DescribeSecurityGroupsRequest
 import scala.collection.JavaConversions._
 import java.util.Properties
 import com.amazonaws.internal.StaticCredentialsProvider
 import com.amazonaws.AmazonClientException
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient
-import ohnosequences.nispero.credentials.CredentialsUtils
-import org.apache.commons.io.FileUtils
 
 
-case class Exit(code: Int) extends xsbti.Exit
 
-class NisperoCLI extends xsbti.AppMain {
-  def run(config: xsbti.AppConfiguration) = {
-    NisperoCLI.main(config.arguments)
-    Exit(0)
-  }
-}
-
-object NisperoCLI {
+object CompotaCLI {
   val s3pattern = """[a-zA-Z0-9][a-zA-Z0-9-\.]*"""
   val keyNamePattern = """[a-zA-Z0-9][a-zA-Z0-9-]*"""
 
-  val logger = Logger(this.getClass)
+  val logger = new ConsoleLogger("Compota cli")
 
   def createSecurityGroup(ec2: EC2, securityGroup: String, port: Int): Option[String] = {
     logger.info("creating security group: " + securityGroup)
@@ -64,7 +56,7 @@ object NisperoCLI {
 
 
   val bucketsSuffixTag = "bucketSuffix"
-  val securityGroup = "nispero"
+  val securityGroup = "compota"
 
   def getConfiguredBucketSuffix(ec2: EC2, securityGroup: String): Option[String] = {
 
@@ -111,7 +103,7 @@ object NisperoCLI {
   def accountSetup(ec2: EC2, iam: AmazonIdentityManagementClient) = {
 
     val iamRole = "compota"
-    val keyName = "nispero"
+    val keyName = "compota"
 
   
 
@@ -302,7 +294,7 @@ object NisperoCLI {
     val files = Utils.recursiveListFiles(t)
 
 
-    FileUtils.deleteDirectory(dst2)
+    Files.delete(dst2.toPath)
     dst.mkdir()
 
     val mapIgnore = {file: File =>
@@ -313,7 +305,7 @@ object NisperoCLI {
 
 
     try {
-      FileUtils.deleteDirectory(dst)
+      Files.delete(dst.toPath)
     } catch {
       case e: IOException => logger.warn("unable to delete: " + dst.getPath)
     }
@@ -324,7 +316,7 @@ object NisperoCLI {
 
   def clone(url: String, tag: Option[String], dst: File) {
     try {
-      FileUtils.deleteDirectory(dst)
+      Files.delete(dst.toPath)
     } catch {
       case e: IOException => logger.warn("unable to delete: " + dst.getPath)
     }

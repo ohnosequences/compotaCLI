@@ -1,10 +1,10 @@
-package ohnosequences.nispero.credentials
+package ohnosequences.compota.cli
 
 import java.io.File
 import com.amazonaws.auth._
 import ohnosequences.awstools.ec2.EC2
 import com.amazonaws.AmazonClientException
-import org.clapper.avsl.Logger
+import ohnosequences.logging.ConsoleLogger
 
 case class FileCredentialsProvider(file: File) extends AWSCredentialsProvider {
   var staticProvider = new PropertiesCredentials(file)
@@ -16,7 +16,7 @@ case class FileCredentialsProvider(file: File) extends AWSCredentialsProvider {
 
 object CredentialsUtils {
 
-  val logger = Logger(this.getClass)
+  val logger = new ConsoleLogger("credentials utils")
 
   def print(provider: AWSCredentialsProvider) = provider match {
     case ip: InstanceProfileCredentialsProvider => {

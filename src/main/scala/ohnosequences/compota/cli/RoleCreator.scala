@@ -1,4 +1,4 @@
-package ohnosequences.nispero.cli
+package ohnosequences.compota.cli
 
 import com.amazonaws.services.identitymanagement.model._
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient

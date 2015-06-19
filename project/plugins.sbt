@@ -1,10 +1,5 @@
-resolvers ++= Seq(
-  "Era7 Releases"       at "http://releases.era7.com.s3.amazonaws.com",
-  "Era7 Snapshots"      at "http://snapshots.era7.com.s3.amazonaws.com"
-)
 
+resolvers += "Era7 maven releases" at "https://s3-eu-west-1.amazonaws.com/releases.era7.com"
 
-addSbtPlugin("net.databinder" % "conscript-plugin" % "0.3.5")
+addSbtPlugin("ohnosequences" % "nice-sbt-settings" % "0.5.1")
 
-//nice-sbt-settings v0.4.0-RC1
-addSbtPlugin( "ohnosequences" % "nice-sbt-settings" % "0.3.1")

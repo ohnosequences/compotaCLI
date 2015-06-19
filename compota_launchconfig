@@ -1,11 +1,11 @@
 [app]
-  version: 2.1.1
+  version: 3.0.0-SNAPSHOT
   org: ohnosequences
-  name: nispero-cli_2.10
-  class: ohnosequences.nispero.cli.NisperoCLI
+  name: compota-cli_2.11
+  class: ohnosequences.compota.cli.CompotaCLI
   cross-versioned: false
 [scala]
-  version: 2.10.3
+  version: 2.11.6
 [repositories]
   local
   sonatype-oss-releases: https://oss.sonatype.org/content/repositories/releases/

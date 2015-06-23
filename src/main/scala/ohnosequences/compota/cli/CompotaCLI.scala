@@ -40,6 +40,7 @@ object CompotaCLI {
     //enable ssh connection
     logger.info("enabling ports")
     ec2.enablePortForGroup(securityGroup, 22)
+    ec2.enablePortForGroup(securityGroup, 80)
     ec2.enablePortForGroup(securityGroup, port)
 
     sg.map(_.getGroupId)
@@ -48,14 +49,14 @@ object CompotaCLI {
 
 
 
-  val sbtCommand = if (System.getProperty("os.name").toLowerCase.contains("win")) {
-    "sbt.bat"
-  } else {
-    "sbt"
-  }
+//  val sbtCommand = if (System.getProperty("os.name").toLowerCase.contains("win")) {
+//    "sbt.bat"
+//  } else {
+//    "sbt"
+//  }
 
 
-  val bucketsSuffixTag = "bucketSuffix"
+  val bucketsSuffixTag = "compota"
   val securityGroup = "compota"
 
   def getConfiguredBucketSuffix(ec2: EC2, securityGroup: String): Option[String] = {
@@ -103,6 +104,7 @@ object CompotaCLI {
   def accountSetup(ec2: EC2, iam: AmazonIdentityManagementClient) = {
 
     val iamRole = "compota"
+    val iamRoleLegacy = "nispero"
     val keyName = "compota"
 
   
@@ -128,8 +130,14 @@ object CompotaCLI {
       logger.info("creating IAM role: " + iamRole)
       RoleCreator.createGodRole(iamRole, iam)
     }
+    
+    logger.info("creating legacy IAM role: " + iamRoleLegacy)
+    if(!RoleCreator.roleExists(iamRoleLegacy, iam)){
+      logger.info("creating IAM role: " + iamRoleLegacy)
+      RoleCreator.createGodRole(iamRoleLegacy, iam)
+    }
 
-    logger.info("acount configured")
+    logger.info("account configured")
   }
 
 
@@ -183,31 +191,20 @@ object CompotaCLI {
     val argsList = args.toList
     argsList match {
 
-      case "configure" :: "bucket" :: Nil => {
-        val provider = retrieveCredentialsProvider(None)
+      case "configure" :: "bucket" :: args => {
+        val provider = retrieveCredentialsProvider(args.headOption)
         bucketSetup(EC2.create(provider))
       }
 
-      case "create" :: repo :: Nil =>  {
-        val provider = retrieveCredentialsProvider(None)
+      case "create" :: repo :: file :: args =>  {
+        val provider = retrieveCredentialsProvider(args.headOption)
         val repoTag = parseRepo(repo)
         createNispero(provider, repoTag._2, createUrl(repoTag._1))
       }
 
-      case "create" :: repo :: file :: Nil =>  {
-        val provider = retrieveCredentialsProvider(Some(file))
-        val repoTag = parseRepo(repo)
-        createNispero(provider, repoTag._2, createUrl(repoTag._1))
-      }
 
-      case "configure" :: Nil =>  {
-        val provider = retrieveCredentialsProvider(None)
-        val iam = new AmazonIdentityManagementClient(provider)
-        accountSetup(EC2.create(provider), iam)
-      }
-
-      case "configure" :: file :: Nil =>  {
-        val provider = retrieveCredentialsProvider(Some(file))
+      case "configure" :: args =>  {
+        val provider = retrieveCredentialsProvider(args.headOption)
         val iam = new AmazonIdentityManagementClient(provider)
         accountSetup(EC2.create(provider), iam)
       }

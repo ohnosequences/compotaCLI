@@ -66,7 +66,7 @@ object CredentialsUtils {
     val credentialsFile = file match {
       case None => {
         val defaultLocation = System.getProperty("user.home")
-        new File(defaultLocation, "nispero.credentials")
+        new File(defaultLocation, "compota.credentials")
       }
       case Some(file) => {        
         new File(file)

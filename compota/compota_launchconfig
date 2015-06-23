@@ -1,5 +1,5 @@
 [app]
-  version: 3.3.0
+  version: 3.3.1
   org: ohnosequences
   name: compota-cli_2.11
   class: ohnosequences.compota.cli.CompotaCLI

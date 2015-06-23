@@ -1,3 +1,2 @@
-SET mypath=%~dp0
-echo %mypath:~0,-1%
-java -jar %~dp0\sbt-launch.jar "@compota_launchconfig" %*
+SET dirname=%~dp0
+java -jar %dirname%\sbt-launch.jar "@https://raw.githubusercontent.com/ohnosequences/compotaCLI/master/compota/compota_launchconfig" %*

@@ -208,7 +208,7 @@ object CompotaCLI {
         val iam = new AmazonIdentityManagementClient(provider)
         accountSetup(EC2.create(provider), iam)
       }
-      case _ => logger.error("wrong command")
+      case _ => logger.error("wrong command: " + args)
     }
   }
 

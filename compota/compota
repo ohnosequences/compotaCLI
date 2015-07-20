@@ -1,1 +1,1 @@
-java -jar `dirname $0`/sbt-launch.jar "@https://raw.githubusercontent.com/ohnosequences/compotaCLI/v3.3.2/compota/compota_launchconfig" "$@"
+java -jar `dirname $0`/sbt-launch.jar "@https://raw.githubusercontent.com/ohnosequences/compotaCLI/v3.3.3-SNAPSHOT/compota/compota_launchconfig" "$@"

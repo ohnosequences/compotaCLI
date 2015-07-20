@@ -15,13 +15,64 @@ import com.amazonaws.internal.StaticCredentialsProvider
 import com.amazonaws.AmazonClientException
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient
 
+import scala.util.Try
 
 
 object CompotaCLI {
   val s3pattern = """[a-zA-Z0-9][a-zA-Z0-9-\.]*"""
   val keyNamePattern = """[a-zA-Z0-9][a-zA-Z0-9-]*"""
 
-  val logger = new ConsoleLogger("Compota cli")
+
+  def help(): Unit = {
+    logger.info("compotaCLI valid commands:")
+    logger.info("")
+    logger.info("configure bucket [credentialsFile]")
+    logger.info("create repository[:tag] [credentialsFile]")
+    logger.info("configure [credentialsFile]")
+  }
+
+  def main(rawArgs: Array[String]) {
+    val argsList = rawArgs.toList
+    argsList match {
+      case "configure" :: "bucket" :: args => {
+        CredentialsUtils.retrieveCredentialsProvider(args.headOption) match {
+          case Some(provider) => {
+            bucketSetup(EC2.create(provider))
+          }
+          case None => {
+            logger.error("couldn't retrieve credentials provider")
+          }
+        }
+      }
+
+      case "create" :: repo :: args =>  {
+        val repoTag = parseRepo(repo)
+        createNispero(CredentialsUtils.retrieveCredentialsProvider(args.headOption), repoTag._2, createUrl(repoTag._1))
+      }
+
+      case "configure" :: args =>  {
+        CredentialsUtils.retrieveCredentialsProvider(args.headOption) match {
+          case Some(provider) => {
+            val iam = new AmazonIdentityManagementClient(provider)
+            accountSetup(EC2.create(provider), iam)
+          }
+          case None => {
+            logger.error("couldn't retrieve credentials provider")
+          }
+        }
+      }
+
+      case "help" :: Nil => help()
+
+      case _ => {
+        logger.error("wrong command: " + argsList)
+        help()
+      }
+    }
+  }
+
+
+  val logger = new ConsoleLogger("compotaCLI")
 
   def createSecurityGroup(ec2: EC2, securityGroup: String, port: Int): Option[String] = {
     logger.info("creating security group: " + securityGroup)
@@ -48,16 +99,9 @@ object CompotaCLI {
   }
 
 
-
-//  val sbtCommand = if (System.getProperty("os.name").toLowerCase.contains("win")) {
-//    "sbt.bat"
-//  } else {
-//    "sbt"
-//  }
-
-
   val bucketsSuffixTag = "compota"
   val securityGroup = "compota"
+
 
   def getConfiguredBucketSuffix(ec2: EC2, securityGroup: String): Option[String] = {
 
@@ -74,10 +118,11 @@ object CompotaCLI {
     }
   }
 
-  def bucketSetup(ec2: EC2) = {
-    val port = 443 //https  
-    val id = createSecurityGroup(ec2, securityGroup, port)  
+  def setBucketSuffix(ec2: EC2, securityGroup: String, bucketSuffix: String)= Try {
+    ec2.createTags(securityGroup, List(Tag(bucketsSuffixTag, bucketSuffix)))
+  }
 
+  def bucketSetup(ec2: EC2) = {
     val bucketsSuffixValue = getConfiguredBucketSuffix(ec2, securityGroup)
     print("type suffix for artifacts buckets")
     bucketsSuffixValue match {
@@ -88,17 +133,17 @@ object CompotaCLI {
     var takenBucketSuffix = ""
 
     while (takenBucketSuffix.isEmpty) {
-
-      val newBucketsSuffixValue = readLine()
-
+      val newBucketsSuffixValue: String = io.StdIn.readLine()
       takenBucketSuffix = (newBucketsSuffixValue, bucketsSuffixValue) match {
-        case ("", Some(bucket)) => bucket
-        case (bucket, _) if bucket.matches(s3pattern) => bucket
+        case ("", Some(suffix)) => suffix
+        case (suffix, _) if suffix.matches(s3pattern) => {
+          setBucketSuffix(ec2, securityGroup, suffix)
+          suffix
+        }
         case _ => logger.warn("bucket suffix should have format: " + s3pattern); ""
       }
     }
 
-    ec2.createTags(id.get, List(Tag(bucketsSuffixTag, takenBucketSuffix)))
   }
 
   def accountSetup(ec2: EC2, iam: AmazonIdentityManagementClient) = {
@@ -107,23 +152,10 @@ object CompotaCLI {
     val iamRoleLegacy = "nispero"
     val keyName = "compota"
 
-  
+    val port = 443 //https
+    val id = createSecurityGroup(ec2, securityGroup, port)
 
     bucketSetup(ec2)
-
-    println("type key pair name (type ENTER if it is not needed):")
-
-    var keyPairName = readLine()
-
-    if (!keyPairName.isEmpty) {
-      while(!keyPairName.matches(keyNamePattern)) {
-        logger.warn("key pair name should have format: " + keyNamePattern)
-        keyPairName = readLine()
-      }
-
-      logger.info("creating key pair: " + keyPairName)
-      ec2.createKeyPair(keyPairName, Some(new File(keyPairName + ".pem")))
-    }
 
     logger.info("creating IAM role: " + iamRole)
     if(!RoleCreator.roleExists(iamRole, iam)){
@@ -142,37 +174,25 @@ object CompotaCLI {
 
 
 
-  def createNispero(credentialsProvider: AWSCredentialsProvider, tag: Option[String], url: String) {
+  def createNispero(credentialsProvider: Option[AWSCredentialsProvider], tag: Option[String], url: String) {
 
-    val ec2 = EC2.create(credentialsProvider)
+    val resolverKeys: Map[String, String] = credentialsProvider.map { provider =>
+      Map("credentialsProvider" -> CredentialsUtils.serializeProviderConstructor(provider))
+    }.getOrElse(Map())
 
-    val resolverKeys = Map(
-      "credentialsProvider" -> CredentialsUtils.generateCall(credentialsProvider)
-    )
-
-   // val iam = new AmazonIdentityManagementClient(credentialsProvider)
-
-    val bucketSuffixMapping = getConfiguredBucketSuffix(ec2, securityGroup) match {
-      case None => Map[String, String]()
-      case Some(bb) => Map(bucketsSuffixTag -> bb)
-    }
-
-    //println(bucketSuffixMapping)
+    val bucketSuffixMapping: Map[String, String] = credentialsProvider.flatMap { provider =>
+      getConfiguredBucketSuffix(EC2.create(provider), securityGroup)
+    }.map { suffix =>
+      Map(bucketsSuffixTag -> suffix)
+    }.getOrElse(Map())
 
     val predef = bucketSuffixMapping ++ resolverKeys ++ Map(
-      "password" -> java.lang.Long.toHexString((Math.random() * 100000000000L).toLong)
+      "password" -> java.lang.Long.toHexString((Math.random() * 100000000000L).toLong
+      )
     )
+
     fetch(tag, url, predef, defaultPrinter)
 
-  }
-
-  def retrieveCredentialsProvider(file: Option[String]): AWSCredentialsProvider = {
-    CredentialsUtils.retrieveCredentialsProvider(file) match {
-      case None => {
-        throw new Error("couldn't retrieve credentials provider")
-      }
-      case Some(provider) => provider
-    }
   }
 
 
@@ -186,31 +206,6 @@ object CompotaCLI {
     }
   }
 
-
-  def main(args: Array[String]) {
-    val argsList = args.toList
-    argsList match {
-
-      case "configure" :: "bucket" :: args => {
-        val provider = retrieveCredentialsProvider(args.headOption)
-        bucketSetup(EC2.create(provider))
-      }
-
-      case "create" :: repo :: args =>  {
-        val provider = retrieveCredentialsProvider(args.headOption)
-        val repoTag = parseRepo(repo)
-        createNispero(provider, repoTag._2, createUrl(repoTag._1))
-      }
-
-
-      case "configure" :: args =>  {
-        val provider = retrieveCredentialsProvider(args.headOption)
-        val iam = new AmazonIdentityManagementClient(provider)
-        accountSetup(EC2.create(provider), iam)
-      }
-      case _ => logger.error("wrong command: " + args.toList)
-    }
-  }
 
 
 
@@ -282,7 +277,8 @@ object CompotaCLI {
 
 
     //remove properties file
-    props.delete()
+
+    Try(props.delete())
 
     val dst2 = new File(mapping("$name$"))
 
@@ -291,7 +287,7 @@ object CompotaCLI {
     val files = Utils.recursiveListFiles(t)
 
 
-    Files.delete(dst2.toPath)
+    Try(Files.delete(dst2.toPath))
     dst.mkdir()
 
     val mapIgnore = {file: File =>

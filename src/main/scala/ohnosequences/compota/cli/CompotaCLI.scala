@@ -196,7 +196,7 @@ object CompotaCLI {
         bucketSetup(EC2.create(provider))
       }
 
-      case "create" :: repo :: file :: args =>  {
+      case "create" :: repo :: args =>  {
         val provider = retrieveCredentialsProvider(args.headOption)
         val repoTag = parseRepo(repo)
         createNispero(provider, repoTag._2, createUrl(repoTag._1))
